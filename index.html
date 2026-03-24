@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Website</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      color: #333;
+    }
+
+    header {
+      background: #222;
+      color: white;
+      padding: 15px;
+      text-align: center;
+    }
+
+    nav {
+      background: #444;
+      display: flex;
+      justify-content: center;
+    }
+
+    nav a {
+      color: white;
+      padding: 14px 20px;
+      text-decoration: none;
+    }
+
+    nav a:hover {
+      background: #666;
+    }
+
+    .hero {
+      padding: 60px;
+      text-align: center;
+      background: linear-gradient(to right, #4facfe, #00f2fe);
+      color: white;
+    }
+
+    .content {
+      padding: 40px;
+      text-align: center;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      background: #4facfe;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background: #00c6ff;
+    }
+
+    footer {
+      background: #222;
+      color: white;
+      text-align: center;
+      padding: 15px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>My Website</h1>
+  <p>Welcome to my site</p>
+</header>
+
+<nav>
+  <a href="#">Home</a>
+  <a href="#">About</a>
+  <a href="#">Contact</a>
+</nav>
+
+<section class="hero">
+  <h2>Hello 👋</h2>
+  <p>This is a simple website template</p>
+  <button onclick="sayHello()">Click Me</button>
+</section>
+
+<section class="content">
+  <h2>About</h2>
+  <p>You can edit this section to describe yourself or your project.</p>
+</section>
+
+<footer>
+  <p>© 2026 My Website</p>
+</footer>
+
+<script>
+  function sayHello() {
+    alert("Thanks for visiting!");
+  }
+</script>
+
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Mini Games Portal</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #121212;
+    color: white;
+    text-align: center;
+  }
+
+  header {
+    background: #1f1f1f;
+    padding: 15px;
+  }
+
+  h1 { margin: 0; }
+
+  .menu {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px;
+    flex-wrap: wrap;
+  }
+
+  button {
+    padding: 10px 20px;
+    border: none;
+    background: #4facfe;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+
+  button:hover {
+    background: #00c6ff;
+  }
+
+  .game {
+    display: none;
+    padding: 20px;
+  }
+
+  .active {
+    display: block;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 80px);
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .card {
+    width: 80px;
+    height: 80px;
+    background: #333;
+    font-size: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  footer {
+    margin-top: 30px;
+    padding: 10px;
+    background: #1f1f1f;
+  }
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>🎮 Mini Games Portal</h1>
+</header>
+
+<div class="menu">
+  <button onclick="showGame('home')">Home</button>
+  <button onclick="showGame('memory')">Memory Game</button>
+  <button onclick="showGame('rps')">Rock Paper Scissors</button>
+  <button onclick="showGame('random')">Random Number</button>
+</div>
+
+<!-- HOME -->
+<div id="home" class="game active">
+  <h2>Welcome!</h2>
+  <p>Select a game above to start playing.</p>
+</div>
+
+<!-- MEMORY GAME -->
+<div id="memory" class="game">
+  <h2>🧠 Memory Game</h2>
+  <div class="grid" id="grid"></div>
+</div>
+
+<!-- ROCK PAPER SCISSORS -->
+<div id="rps" class="game">
+  <h2>✊ Rock Paper Scissors</h2>
+  <p id="rps-result">Choose your move:</p>
+  <button onclick="playRPS('rock')">Rock</button>
+  <button onclick="playRPS('paper')">Paper</button>
+  <button onclick="playRPS('scissors')">Scissors</button>
+</div>
+
+<!-- RANDOM NUMBER -->
+<div id="random" class="game">
+  <h2>🎲 Guess the Number (1-10)</h2>
+  <input type="number" id="guess" min="1" max="10">
+  <button onclick="checkGuess()">Guess</button>
+  <p id="guess-result"></p>
+</div>
+
+<footer>
+  <p>© 2026 Mini Games Portal</p>
+</footer>
+
+<script>
+/* NAVIGATION */
+function showGame(id) {
+  document.querySelectorAll('.game').forEach(g => g.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+/* MEMORY GAME */
+const symbols = ['🍎','🍌','🍇','🍉','🍓','🍍','🥝','🍒'];
+let cards = [...symbols, ...symbols];
+cards.sort(() => 0.5 - Math.random());
+
+const grid = document.getElementById("grid");
+let first = null, second = null, lock = false;
+
+function createBoard() {
+  grid.innerHTML = "";
+  cards.forEach((symbol, i) => {
+    const card = document.createElement("div");
+    card.classList.add("card");
+    card.dataset.symbol = symbol;
+    card.dataset.index = i;
+    card.onclick = () => flip(card);
+    grid.appendChild(card);
+  });
+}
+
+function flip(card) {
+  if (lock || card.textContent) return;
+
+  card.textContent = card.dataset.symbol;
+
+  if (!first) {
+    first = card;
+  } else {
+    second = card;
+    lock = true;
+
+    if (first.dataset.symbol === second.dataset.symbol) {
+      first = second = null;
+      lock = false;
+    } else {
+      setTimeout(() => {
+        first.textContent = "";
+        second.textContent = "";
+        first = second = null;
+        lock = false;
+      }, 800);
+    }
+  }
+}
+
+createBoard();
+
+/* ROCK PAPER SCISSORS */
+function playRPS(player) {
+  const choices = ['rock','paper','scissors'];
+  const bot = choices[Math.floor(Math.random() * 3)];
+
+  let result = "";
+  if (player === bot) result = "Draw!";
+  else if (
+    (player === 'rock' && bot === 'scissors') ||
+    (player === 'paper' && bot === 'rock') ||
+    (player === 'scissors' && bot === 'paper')
+  ) result = "You win!";
+  else result = "You lose!";
+
+  document.getElementById("rps-result").textContent =
+    `You: ${player} | Bot: ${bot} → ${result}`;
+}
+
+/* RANDOM NUMBER */
+let secret = Math.floor(Math.random() * 10) + 1;
+
+function checkGuess() {
+  const guess = Number(document.getElementById("guess").value);
+  const result = document.getElementById("guess-result");
+
+  if (guess === secret) {
+    result.textContent = "🎉 Correct! New number generated.";
+    secret = Math.floor(Math.random() * 10) + 1;
+  } else {
+    result.textContent = "❌ Try again!";
+  }
+}
+</script>
+
+</body>
+</html>
