@@ -113,7 +113,7 @@ nav a:hover {
 /* PANEL */
 .panel {
   width: 95%;
-  max-width: 1200px;
+  max-width: 1400px;
   padding: 22px;
   border-radius: 22px;
   background: rgba(255,255,255,0.08);
@@ -134,20 +134,61 @@ nav a:hover {
   justify-content: center;
 }
 
-select, .tool-btn {
+/* MAIN DROPDOWN */
+.dropdown {
+  position: relative;
+}
+
+.dropdown-btn {
   padding: 8px 14px;
   border-radius: 999px;
   border: 1px solid rgba(200,150,255,0.5);
   background: rgba(255,255,255,0.08);
   color: #f5e8ff;
-  font-size: 0.9rem;
   cursor: pointer;
   backdrop-filter: blur(12px);
 }
 
-.tool-btn.active {
-  background: rgba(200,150,255,0.3);
-  box-shadow: 0 0 12px #c47aff;
+.dropdown-menu {
+  position: absolute;
+  top: 40px;
+  left: 0;
+  background: rgba(40,0,80,0.9);
+  border: 1px solid rgba(200,150,255,0.5);
+  border-radius: 12px;
+  padding: 10px;
+  display: none;
+  z-index: 50;
+}
+
+.dropdown:hover .dropdown-menu {
+  display: block;
+}
+
+.submenu {
+  margin-left: 10px;
+  display: none;
+}
+
+.dropdown-item:hover > .submenu {
+  display: block;
+}
+
+.dropdown-item {
+  padding: 6px;
+  cursor: pointer;
+  color: #f5e8ff;
+}
+
+/* BRUSH SLIDER */
+.slider-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.slider-wrap input {
+  width: 120px;
 }
 
 /* CANVAS */
@@ -192,51 +233,66 @@ footer {
 
     <div class="toolbar">
 
-      <!-- SOLID -->
-      <select id="solidSelect">
-        <option value="rock">Rock</option>
-        <option value="metal">Metal</option>
-        <option value="glass">Glass</option>
-      </select>
+      <!-- MAIN DROPDOWN -->
+      <div class="dropdown">
+        <div class="dropdown-btn">State of Matter ▼</div>
 
-      <!-- POWDER -->
-      <select id="powderSelect">
-        <option value="sand">Sand</option>
-        <option value="explosive">Explosive Powder</option>
-        <option value="dirt">Dirt</option>
-      </select>
+        <div class="dropdown-menu">
 
-      <!-- GAS -->
-      <select id="gasSelect">
-        <option value="propane">Propane</option>
-        <option value="hydrogen">Hydrogen</option>
-        <option value="nitrogen">Nitrogen</option>
-      </select>
+          <div class="dropdown-item">Solid >
+            <div class="submenu">
+              <div class="dropdown-item" data-material="rock">Rock</div>
+              <div class="dropdown-item" data-material="metal">Metal</div>
+              <div class="dropdown-item" data-material="glass">Glass</div>
+            </div>
+          </div>
 
-      <!-- LIQUID -->
-      <select id="liquidSelect">
-        <option value="gasoline">Gasoline</option>
-        <option value="acid">Acid</option>
-        <option value="lava">Lava</option>
-        <option value="water">Water</option>
-      </select>
+          <div class="dropdown-item">Powder >
+            <div class="submenu">
+              <div class="dropdown-item" data-material="sand">Sand</div>
+              <div class="dropdown-item" data-material="explosive">Explosive Powder</div>
+              <div class="dropdown-item" data-material="dirt">Dirt</div>
+            </div>
+          </div>
+
+          <div class="dropdown-item">Liquid >
+            <div class="submenu">
+              <div class="dropdown-item" data-material="gasoline">Gasoline</div>
+              <div class="dropdown-item" data-material="acid">Acid</div>
+              <div class="dropdown-item" data-material="lava">Lava</div>
+              <div class="dropdown-item" data-material="water">Water</div>
+            </div>
+          </div>
+
+          <div class="dropdown-item">Gas >
+            <div class="submenu">
+              <div class="dropdown-item" data-material="propane">Propane</div>
+              <div class="dropdown-item" data-material="hydrogen">Hydrogen</div>
+              <div class="dropdown-item" data-material="nitrogen">Nitrogen</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- BRUSH SIZE -->
+      <div class="slider-wrap">
+        <label>Brush:</label>
+        <input type="range" id="brushSize" min="1" max="12" value="3">
+      </div>
 
       <!-- TOOLS -->
-      <button class="tool-btn active" data-tool="solid">Solid</button>
-      <button class="tool-btn" data-tool="powder">Powder</button>
-      <button class="tool-btn" data-tool="liquid">Liquid</button>
-      <button class="tool-btn" data-tool="gas">Gas</button>
       <button class="tool-btn" data-tool="eraser">Eraser</button>
       <button class="tool-btn" data-tool="lighter">Lighter 🔥</button>
 
     </div>
 
     <div class="canvas-wrap">
-      <canvas id="sandbox" width="600" height="400"></canvas>
+      <canvas id="sandbox" width="900" height="600"></canvas>
     </div>
 
     <footer>
-      Lighter: 1 in 5 chance to ignite propane or gasoline. Otherwise sparks.
+      Lighter: 1 in 5 chance to ignite propane gas or gasoline liquid.
     </footer>
 
   </div>
@@ -247,8 +303,8 @@ footer {
 const canvas = document.getElementById("sandbox");
 const ctx = canvas.getContext("2d");
 
-const W = 300;
-const H = 200;
+const W = 450;
+const H = 300;
 const SCALE = canvas.width / W;
 
 const EMPTY = 0;
@@ -262,22 +318,29 @@ const SPARK = 6;
 let grid = new Array(W * H).fill(EMPTY);
 let fireLife = new Array(W * H).fill(0);
 
-let currentTool = "solid";
+let currentMaterial = "rock";
+let currentTool = "material";
+let brushSize = 3;
 
-const toolButtons = document.querySelectorAll(".tool-btn");
-toolButtons.forEach(btn => {
-  btn.addEventListener("click", () => {
-    toolButtons.forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    currentTool = btn.dataset.tool;
+/* MATERIAL SELECTION */
+document.querySelectorAll("[data-material]").forEach(item => {
+  item.addEventListener("click", () => {
+    currentMaterial = item.dataset.material;
+    currentTool = "material";
   });
 });
 
-/* DROPDOWNS */
-const solidSelect = document.getElementById("solidSelect");
-const powderSelect = document.getElementById("powderSelect");
-const gasSelect = document.getElementById("gasSelect");
-const liquidSelect = document.getElementById("liquidSelect");
+/* BRUSH SIZE */
+document.getElementById("brushSize").addEventListener("input", e => {
+  brushSize = parseInt(e.target.value);
+});
+
+/* TOOL BUTTONS */
+document.querySelectorAll(".tool-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    currentTool = btn.dataset.tool;
+  });
+});
 
 /* MOUSE */
 let mouseDown = false;
@@ -295,39 +358,51 @@ canvas.addEventListener("mousemove", e => {
 /* PAINTING */
 function paint(e) {
   const rect = canvas.getBoundingClientRect();
-  const x = Math.floor((e.clientX - rect.left) / SCALE);
-  const y = Math.floor((e.clientY - rect.top) / SCALE);
-  if (x < 0 || x >= W || y < 0 || y >= H) return;
+  const cx = Math.floor((e.clientX - rect.left) / SCALE);
+  const cy = Math.floor((e.clientY - rect.top) / SCALE);
 
-  const idx = x + y * W;
+  for (let dx = -brushSize; dx <= brushSize; dx++) {
+    for (let dy = -brushSize; dy <= brushSize; dy++) {
+      if (dx*dx + dy*dy > brushSize*brushSize) continue;
 
-  if (currentTool === "eraser") {
-    grid[idx] = EMPTY;
-    fireLife[idx] = 0;
-    return;
-  }
+      const x = cx + dx;
+      const y = cy + dy;
+      if (x < 0 || x >= W || y < 0 || y >= H) continue;
 
-  if (currentTool === "lighter") {
-    const t = grid[idx];
-    if (t === GAS || t === LIQUID) {
-      if (Math.random() < 0.2) {
-        grid[idx] = FIRE;
-        fireLife[idx] = 30;
-      } else {
-        grid[idx] = SPARK;
-        fireLife[idx] = 5;
+      const idx = x + y * W;
+
+      if (currentTool === "eraser") {
+        grid[idx] = EMPTY;
+        fireLife[idx] = 0;
+        continue;
       }
-    } else {
-      grid[idx] = SPARK;
-      fireLife[idx] = 3;
-    }
-    return;
-  }
 
-  if (currentTool === "solid") grid[idx] = SOLID;
-  if (currentTool === "powder") grid[idx] = POWDER;
-  if (currentTool === "liquid") grid[idx] = LIQUID;
-  if (currentTool === "gas") grid[idx] = GAS;
+      if (currentTool === "lighter") {
+        const t = grid[idx];
+        if (t === GAS || t === LIQUID) {
+          if (Math.random() < 0.2) {
+            grid[idx] = FIRE;
+            fireLife[idx] = 30;
+          } else {
+            grid[idx] = SPARK;
+            fireLife[idx] = 5;
+          }
+        } else {
+          grid[idx] = SPARK;
+          fireLife[idx] = 3;
+        }
+        continue;
+      }
+
+      /* MATERIAL PLACEMENT */
+      if (currentTool === "material") {
+        if (["rock","metal","glass"].includes(currentMaterial)) grid[idx] = SOLID;
+        if (["sand","explosive","dirt"].includes(currentMaterial)) grid[idx] = POWDER;
+        if (["gasoline","acid","lava","water"].includes(currentMaterial)) grid[idx] = LIQUID;
+        if (["propane","hydrogen","nitrogen"].includes(currentMaterial)) grid[idx] = GAS;
+      }
+    }
+  }
 }
 
 /* HELPERS */
@@ -335,20 +410,11 @@ function get(x, y) {
   if (x < 0 || x >= W || y < 0 || y >= H) return SOLID;
   return grid[x + y * W];
 }
-function set(x, y, v) {
-  if (x < 0 || x >= W || y < 0 || y >= H) return;
-  grid[x + y * W] = v;
-}
 function swap(x1, y1, x2, y2) {
   const i1 = x1 + y1 * W;
   const i2 = x2 + y2 * W;
-  const tmp = grid[i1];
-  grid[i1] = grid[i2];
-  grid[i2] = tmp;
-
-  const tl = fireLife[i1];
-  fireLife[i1] = fireLife[i2];
-  fireLife[i2] = tl;
+  [grid[i1], grid[i2]] = [grid[i2], grid[i1]];
+  [fireLife[i1], fireLife[i2]] = [fireLife[i2], fireLife[i1]];
 }
 
 /* PHYSICS */
