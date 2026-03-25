@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+/* RESET */
 * {
   margin: 0;
   padding: 0;
@@ -57,7 +58,7 @@ body::after {
   pointer-events: none;
 }
 
-/* NAV + 2.0 BUTTON */
+/* NAV */
 nav {
   position: absolute;
   top: 20px;
@@ -84,41 +85,15 @@ nav a:hover {
   box-shadow: 0 0 12px #c47aff;
 }
 
-.portal-btn {
-  padding: 10px 20px;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(200,150,255,0.5);
-  backdrop-filter: blur(14px);
-  color: #f5e8ff;
-  text-decoration: none;
-  font-size: 1rem;
-  font-weight: 600;
-  transition: 0.2s ease;
-  box-shadow:
-    0 0 12px rgba(150, 60, 255, 0.35),
-    inset 0 0 12px rgba(150, 60, 255, 0.25);
-}
-
-.portal-btn:hover {
-  background: rgba(200,150,255,0.25);
-  border-color: #d7a3ff;
-  box-shadow:
-    0 0 18px #c47aff,
-    0 0 35px #9b4dff,
-    inset 0 0 18px rgba(200,150,255,0.4);
-  transform: translateY(-3px);
-}
-
 /* HERO */
 .hero {
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   z-index: 10;
 }
 
 .hero h1 {
-  font-size: 3.1rem;
+  font-size: 3.2rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -138,8 +113,8 @@ nav a:hover {
 /* PANEL */
 .panel {
   width: 95%;
-  max-width: 1000px;
-  padding: 22px 24px 26px;
+  max-width: 1200px;
+  padding: 22px;
   border-radius: 22px;
   background: rgba(255,255,255,0.08);
   backdrop-filter: blur(18px);
@@ -154,21 +129,20 @@ nav a:hover {
 .toolbar {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 14px;
-  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
   justify-content: center;
 }
 
-.tool-btn {
-  padding: 6px 12px;
+select, .tool-btn {
+  padding: 8px 14px;
   border-radius: 999px;
   border: 1px solid rgba(200,150,255,0.5);
   background: rgba(255,255,255,0.08);
   color: #f5e8ff;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   cursor: pointer;
-  transition: 0.15s ease;
+  backdrop-filter: blur(12px);
 }
 
 .tool-btn.active {
@@ -176,11 +150,7 @@ nav a:hover {
   box-shadow: 0 0 12px #c47aff;
 }
 
-.tool-btn:hover {
-  transform: translateY(-2px);
-}
-
-/* CANVAS WRAP */
+/* CANVAS */
 .canvas-wrap {
   display: flex;
   justify-content: center;
@@ -206,59 +176,93 @@ footer {
 </head>
 
 <body>
+
 <nav>
   <a href="#">Home</a>
-  <a href="#">Sandbox</a>
   <a class="portal-btn" href="https://whi0048.github.io/pablos-portal-2.0/" target="_blank">2.0</a>
 </nav>
 
 <div>
   <div class="hero">
     <h1>Pablo's Sandbox</h1>
-    <p>Violet Frost • Falling Powder • Liquids • Gas • Fire</p>
+    <p>Violet Frost • Physics Sandbox • Fire • Liquids • Gas • Powder</p>
   </div>
 
   <div class="panel">
+
     <div class="toolbar">
-      <button class="tool-btn active" data-tool="powder">Powder (Sand)</button>
-      <button class="tool-btn" data-tool="liquid">Gasoline (Liquid)</button>
-      <button class="tool-btn" data-tool="gas">Propane (Gas)</button>
-      <button class="tool-btn" data-tool="solid">Solid Block</button>
+
+      <!-- SOLID -->
+      <select id="solidSelect">
+        <option value="rock">Rock</option>
+        <option value="metal">Metal</option>
+        <option value="glass">Glass</option>
+      </select>
+
+      <!-- POWDER -->
+      <select id="powderSelect">
+        <option value="sand">Sand</option>
+        <option value="explosive">Explosive Powder</option>
+        <option value="dirt">Dirt</option>
+      </select>
+
+      <!-- GAS -->
+      <select id="gasSelect">
+        <option value="propane">Propane</option>
+        <option value="hydrogen">Hydrogen</option>
+        <option value="nitrogen">Nitrogen</option>
+      </select>
+
+      <!-- LIQUID -->
+      <select id="liquidSelect">
+        <option value="gasoline">Gasoline</option>
+        <option value="acid">Acid</option>
+        <option value="lava">Lava</option>
+        <option value="water">Water</option>
+      </select>
+
+      <!-- TOOLS -->
+      <button class="tool-btn active" data-tool="solid">Solid</button>
+      <button class="tool-btn" data-tool="powder">Powder</button>
+      <button class="tool-btn" data-tool="liquid">Liquid</button>
+      <button class="tool-btn" data-tool="gas">Gas</button>
       <button class="tool-btn" data-tool="eraser">Eraser</button>
       <button class="tool-btn" data-tool="lighter">Lighter 🔥</button>
+
     </div>
 
     <div class="canvas-wrap">
-      <canvas id="sandbox" width="240" height="160"></canvas>
+      <canvas id="sandbox" width="600" height="400"></canvas>
     </div>
 
     <footer>
-      Lighter: 1 in 5 chance to ignite propane gas or gasoline. Failure = sparks only.
+      Lighter: 1 in 5 chance to ignite propane or gasoline. Otherwise sparks.
     </footer>
+
   </div>
 </div>
 
 <script>
+/* GRID SETUP */
 const canvas = document.getElementById("sandbox");
 const ctx = canvas.getContext("2d");
 
-const W = 120;  // grid width
-const H = 80;   // grid height
+const W = 300;
+const H = 200;
 const SCALE = canvas.width / W;
 
 const EMPTY = 0;
-const POWDER = 1;
-const LIQUID = 2;
-const GAS = 3;
-const SOLID = 4;
+const SOLID = 1;
+const POWDER = 2;
+const LIQUID = 3;
+const GAS = 4;
 const FIRE = 5;
 const SPARK = 6;
 
 let grid = new Array(W * H).fill(EMPTY);
 let fireLife = new Array(W * H).fill(0);
 
-let currentTool = "powder";
-let mouseDown = false;
+let currentTool = "solid";
 
 const toolButtons = document.querySelectorAll(".tool-btn");
 toolButtons.forEach(btn => {
@@ -269,17 +273,27 @@ toolButtons.forEach(btn => {
   });
 });
 
+/* DROPDOWNS */
+const solidSelect = document.getElementById("solidSelect");
+const powderSelect = document.getElementById("powderSelect");
+const gasSelect = document.getElementById("gasSelect");
+const liquidSelect = document.getElementById("liquidSelect");
+
+/* MOUSE */
+let mouseDown = false;
+
 canvas.addEventListener("mousedown", e => {
   mouseDown = true;
-  handlePaint(e);
+  paint(e);
 });
 canvas.addEventListener("mouseup", () => mouseDown = false);
 canvas.addEventListener("mouseleave", () => mouseDown = false);
 canvas.addEventListener("mousemove", e => {
-  if (mouseDown) handlePaint(e);
+  if (mouseDown) paint(e);
 });
 
-function handlePaint(e) {
+/* PAINTING */
+function paint(e) {
   const rect = canvas.getBoundingClientRect();
   const x = Math.floor((e.clientX - rect.left) / SCALE);
   const y = Math.floor((e.clientY - rect.top) / SCALE);
@@ -298,7 +312,7 @@ function handlePaint(e) {
     if (t === GAS || t === LIQUID) {
       if (Math.random() < 0.2) {
         grid[idx] = FIRE;
-        fireLife[idx] = 20 + Math.floor(Math.random() * 20);
+        fireLife[idx] = 30;
       } else {
         grid[idx] = SPARK;
         fireLife[idx] = 5;
@@ -310,12 +324,13 @@ function handlePaint(e) {
     return;
   }
 
+  if (currentTool === "solid") grid[idx] = SOLID;
   if (currentTool === "powder") grid[idx] = POWDER;
   if (currentTool === "liquid") grid[idx] = LIQUID;
   if (currentTool === "gas") grid[idx] = GAS;
-  if (currentTool === "solid") grid[idx] = SOLID;
 }
 
+/* HELPERS */
 function get(x, y) {
   if (x < 0 || x >= W || y < 0 || y >= H) return SOLID;
   return grid[x + y * W];
@@ -324,7 +339,6 @@ function set(x, y, v) {
   if (x < 0 || x >= W || y < 0 || y >= H) return;
   grid[x + y * W] = v;
 }
-
 function swap(x1, y1, x2, y2) {
   const i1 = x1 + y1 * W;
   const i2 = x2 + y2 * W;
@@ -337,49 +351,38 @@ function swap(x1, y1, x2, y2) {
   fireLife[i2] = tl;
 }
 
+/* PHYSICS */
 function update() {
-  // bottom-up for falling
   for (let y = H - 1; y >= 0; y--) {
     for (let x = 0; x < W; x++) {
       const idx = x + y * W;
       const t = grid[idx];
 
       if (t === POWDER) {
-        if (get(x, y + 1) === EMPTY || get(x, y + 1) === GAS) {
-          swap(x, y, x, y + 1);
-        } else {
+        if (get(x, y + 1) === EMPTY) swap(x, y, x, y + 1);
+        else {
           const dir = Math.random() < 0.5 ? -1 : 1;
-          if (get(x + dir, y + 1) === EMPTY || get(x + dir, y + 1) === GAS) {
-            swap(x, y, x + dir, y + 1);
-          }
+          if (get(x + dir, y + 1) === EMPTY) swap(x, y, x + dir, y + 1);
         }
       }
 
       if (t === LIQUID) {
-        if (get(x, y + 1) === EMPTY || get(x, y + 1) === GAS) {
-          swap(x, y, x, y + 1);
-        } else {
+        if (get(x, y + 1) === EMPTY) swap(x, y, x, y + 1);
+        else {
           const dir = Math.random() < 0.5 ? -1 : 1;
-          if (get(x + dir, y) === EMPTY || get(x + dir, y) === GAS) {
-            swap(x, y, x + dir, y);
-          }
+          if (get(x + dir, y) === EMPTY) swap(x, y, x + dir, y);
         }
       }
 
       if (t === GAS) {
         const dir = Math.random() < 0.5 ? -1 : 1;
-        if (get(x, y - 1) === EMPTY) {
-          swap(x, y, x, y - 1);
-        } else if (get(x + dir, y - 1) === EMPTY) {
-          swap(x, y, x + dir, y - 1);
-        } else if (get(x + dir, y) === EMPTY) {
-          swap(x, y, x + dir, y);
-        }
+        if (get(x, y - 1) === EMPTY) swap(x, y, x, y - 1);
+        else if (get(x + dir, y - 1) === EMPTY) swap(x, y, x + dir, y - 1);
+        else if (get(x + dir, y) === EMPTY) swap(x, y, x + dir, y);
       }
 
       if (t === FIRE || t === SPARK) {
         fireLife[idx]--;
-        // spread fire to nearby gas/liquid
         if (t === FIRE) {
           const neighbors = [
             [x+1,y],[x-1,y],[x,y+1],[x,y-1]
@@ -389,7 +392,7 @@ function update() {
             if (nt === GAS || nt === LIQUID) {
               const ni = nx + ny * W;
               grid[ni] = FIRE;
-              fireLife[ni] = 15 + Math.floor(Math.random() * 15);
+              fireLife[ni] = 20;
             }
           });
         }
@@ -398,23 +401,23 @@ function update() {
           fireLife[idx] = 0;
         }
       }
-
-      // SOLID: no movement
     }
   }
 }
 
+/* DRAW */
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   for (let y = 0; y < H; y++) {
     for (let x = 0; x < W; x++) {
       const t = grid[x + y * W];
       if (t === EMPTY) continue;
-      let color = "#000";
+
+      let color = "#fff";
+      if (t === SOLID) color = "#8a8aff";
       if (t === POWDER) color = "#f5e6b3";
       if (t === LIQUID) color = "#3fa9f5";
       if (t === GAS) color = "rgba(200,200,255,0.4)";
-      if (t === SOLID) color = "#8880ff";
       if (t === FIRE) color = "#ffb347";
       if (t === SPARK) color = "#ffd1ff";
 
@@ -424,6 +427,7 @@ function draw() {
   }
 }
 
+/* LOOP */
 function loop() {
   update();
   draw();
@@ -431,5 +435,6 @@ function loop() {
 }
 loop();
 </script>
+
 </body>
 </html>
